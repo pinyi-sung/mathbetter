@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>品頤的數學特訓：訊號雷達 × 錯題訂正</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+  :root{
+    --paper:#fdf6ec;--ink:#3a3244;--grape:#7c5cbf;--grape-soft:#e7ddf7;
+    --mint:#5ec6a8;--mint-soft:#d6f2e9;--rose:#ff7fa8;--rose-soft:#ffe0ea;
+    --sun:#ffcf5c;--sky:#63b8e8;--sky-soft:#d9eefb;--line:#e6dccd;--shadow:rgba(124,92,191,.16);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:'Noto Sans TC',sans-serif;color:var(--ink);
+    background:radial-gradient(circle at 12% 8%,#fff2d9 0,transparent 42%),
+      radial-gradient(circle at 88% 16%,#ffe3ec 0,transparent 40%),
+      radial-gradient(circle at 50% 100%,#e5ddf7 0,transparent 55%),var(--paper);
+    background-attachment:fixed;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px;margin:0 auto;padding:22px 18px 90px;}
+  header{text-align:center;padding:26px 0 6px;}
+  .badge{display:inline-block;font-family:'Baloo 2';font-weight:700;font-size:.82rem;
+    letter-spacing:.05em;color:var(--grape);background:var(--grape-soft);
+    padding:6px 15px;border-radius:999px;margin-bottom:14px;}
+  h1{font-family:'Baloo 2';font-weight:800;font-size:1.95rem;line-height:1.2;margin:0;}
+  h1 .hl{color:var(--grape);position:relative;white-space:nowrap;}
+  h1 .hl::after{content:"";position:absolute;left:-3px;right:-3px;bottom:2px;height:12px;
+    background:var(--sun);opacity:.55;z-index:-1;border-radius:6px;transform:rotate(-1.2deg);}
+  .sub{font-size:.98rem;color:#8a7fa0;margin:14px auto 0;max-width:470px;line-height:1.75;}
+
+  /* ---- mode switch ---- */
+  .switch{display:flex;gap:8px;background:#fff;border:2px solid var(--line);border-radius:18px;
+    padding:7px;margin:24px 0 4px;box-shadow:0 8px 24px var(--shadow);}
+  .switch button{flex:1;border:none;background:transparent;cursor:pointer;border-radius:12px;
+    padding:13px 8px;font-family:'Baloo 2';font-weight:700;font-size:.95rem;color:#a99ec0;
+    transition:.2s;line-height:1.3;}
+  .switch button .em{font-size:1.15rem;display:block;margin-bottom:2px;}
+  .switch button .cap{font-size:.72rem;font-weight:500;opacity:.85;display:block;margin-top:2px;}
+  .switch button.active{background:var(--grape);color:#fff;box-shadow:0 6px 16px var(--shadow);}
+  .switch button.active.correction{background:var(--mint);box-shadow:0 6px 16px rgba(94,198,168,.3);}
+  .mode-note{font-size:.85rem;color:#9a8fb0;text-align:center;margin:12px 0 2px;line-height:1.6;}
+
+  .track{display:flex;align-items:center;justify-content:center;gap:6px;margin:22px 0 8px;}
+  .dots{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--grape-soft);transition:.3s;}
+  .dot.on{background:var(--grape);transform:scale(1.25);}
+  .dot.done{background:var(--mint);}
+  .mode-correction .dot.on{background:var(--mint);}
+  .track .lbl{font-size:.8rem;color:#a99ec0;margin-left:6px;font-weight:700;}
+
+  .card{background:#fff;border:2px solid var(--line);border-radius:22px;overflow:hidden;
+    box-shadow:0 12px 34px var(--shadow);margin:14px 0 0;}
+  .card-top{background:linear-gradient(120deg,var(--grape),#9a7ae0);color:#fff;padding:16px 20px;
+    display:flex;align-items:center;gap:12px;}
+  .mode-correction .card-top{background:linear-gradient(120deg,var(--mint),#7ad4b8);}
+  .card-top .num{font-family:'Baloo 2';font-weight:800;font-size:1.4rem;background:rgba(255,255,255,.22);
+    width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex-shrink:0;}
+  .card-top .meta{line-height:1.35;}
+  .card-top .meta .t{font-family:'Baloo 2';font-weight:700;font-size:1.05rem;}
+  .card-top .meta .s{font-size:.78rem;opacity:.9;}
+  .diff{margin-left:auto;background:var(--sun);color:#7a5a00;font-weight:800;font-size:.75rem;
+    padding:5px 11px;border-radius:999px;font-family:'Baloo 2';flex-shrink:0;}
+  .card-body{padding:20px;}
+  .qbox{background:#faf6ff;border:1.5px dashed var(--grape-soft);border-radius:14px;
+    padding:16px 18px;font-size:1.05rem;line-height:1.85;}
+  .qbox .qlabel{font-size:.78rem;font-weight:700;color:var(--grape);letter-spacing:.05em;display:block;margin-bottom:6px;}
+  .math{font-family:'Baloo 2';font-weight:600;}
+  .stage{margin-top:20px;}
+  .stage-h{display:flex;align-items:center;gap:9px;font-weight:700;font-size:1.02rem;margin-bottom:10px;}
+  .stage-h .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;background:var(--grape-soft);}
+  .hint{font-size:.88rem;color:#9a8fb0;margin:0 0 12px;line-height:1.65;}
+  .opts{display:flex;flex-direction:column;gap:9px;}
+  .opt{display:flex;align-items:flex-start;gap:11px;border:2px solid var(--line);border-radius:13px;
+    padding:12px 14px;cursor:pointer;transition:.16s;font-size:.95rem;background:#fff;line-height:1.55;}
+  .opt:hover{border-color:var(--grape-soft);background:#faf7ff;}
+  .opt.correct{border-color:var(--mint);background:var(--mint-soft);}
+  .opt.wrong{border-color:var(--rose);background:var(--rose-soft);opacity:.85;}
+  .opt.dim{opacity:.5;}
+  .opt.sel{border-color:var(--grape);background:var(--grape-soft);}
+  .opt .k{font-family:'Baloo 2';font-weight:800;color:var(--grape);flex-shrink:0;}
+  .opt.correct .k{color:var(--mint);}.opt.wrong .k{color:var(--rose);}
+  .opt .em{font-size:1.3rem;flex-shrink:0;}
+  .feedback{margin-top:12px;border-radius:13px;padding:13px 15px;font-size:.93rem;line-height:1.7;display:none;}
+  .feedback.show{display:block;animation:pop .35s ease;}
+  .feedback.good{background:var(--mint-soft);color:#2f7d63;}
+  .feedback.warn{background:#fff2d9;color:#946a00;}
+  @keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .sigcard{background:linear-gradient(135deg,#fffdf7,#f6fbff);border:2px solid var(--sky-soft);
+    border-radius:18px;padding:4px;position:relative;overflow:hidden;}
+  .sigcard::before{content:"📡";position:absolute;top:-6px;right:6px;font-size:3.4rem;opacity:.12;transform:rotate(12deg);}
+  .sig-inner{padding:16px 18px;}
+  .sig-tag{font-family:'Baloo 2';font-weight:800;color:var(--sky);font-size:.8rem;letter-spacing:.08em;}
+  .sig-line{display:flex;align-items:center;gap:10px;margin:12px 0;flex-wrap:wrap;}
+  .sig-cell{border-radius:12px;padding:10px 13px;font-weight:700;font-size:.92rem;line-height:1.45;flex:1;min-width:120px;}
+  .sig-cell.see{background:var(--sky-soft);color:#1d5a86;}
+  .sig-cell.do{background:var(--mint-soft);color:#2f7d63;}
+  .sig-arrow{font-family:'Baloo 2';font-weight:800;font-size:1.3rem;color:var(--grape);flex-shrink:0;}
+  .sig-why{font-size:.88rem;color:#7a708c;line-height:1.7;background:#fff;border-radius:11px;padding:11px 13px;margin-top:8px;}
+  .sig-why b{color:var(--grape);}
+  .btn{font-family:'Baloo 2';font-weight:700;font-size:1rem;border:none;border-radius:13px;
+    padding:12px 20px;cursor:pointer;transition:transform .12s,box-shadow .2s,opacity .2s;
+    color:#fff;background:var(--grape);box-shadow:0 6px 16px var(--shadow);}
+  .btn:hover{transform:translateY(-2px);}.btn:active{transform:translateY(0);}
+  .btn.ghost{background:#fff;color:var(--grape);border:2px solid var(--grape-soft);box-shadow:none;}
+  .btn.mint{background:var(--mint);box-shadow:0 6px 16px rgba(94,198,168,.3);}
+  .btn.rose{background:var(--rose);box-shadow:0 6px 16px rgba(255,127,168,.3);}
+  .btn.sky{background:var(--sky);box-shadow:0 6px 16px rgba(99,184,232,.3);}
+  .btn-full{width:100%;margin-top:14px;}
+  .btn-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .btn-row .btn{flex:1;min-width:130px;}
+  .locked{text-align:center;color:#b3a9c4;font-size:.9rem;padding:14px;background:#faf7ff;
+    border:1.5px dashed var(--grape-soft);border-radius:13px;}
+  .locked b{color:var(--grape);}
+  .transfer .qbox,.redo .qbox{background:#f4fbf8;border-color:var(--mint-soft);}
+  .transfer .qbox .qlabel,.redo .qbox .qlabel{color:var(--mint);}
+  .transfer .disguise{font-size:.82rem;color:var(--mint);font-weight:700;margin:10px 0 0;}
+  textarea{width:100%;min-height:92px;border:2px solid var(--line);border-radius:13px;padding:12px 14px;
+    font-family:'Noto Sans TC';font-size:.98rem;color:var(--ink);resize:vertical;background:#fffdf9;line-height:1.7;}
+  textarea:focus{outline:none;border-color:var(--grape);box-shadow:0 0 0 4px var(--grape-soft);}
+  textarea::placeholder{color:#c4bad2;}
+  .redo textarea{background:#f4fbf8;border-color:var(--mint-soft);}
+  .redo textarea:focus{border-color:var(--mint);box-shadow:0 0 0 4px var(--mint-soft);}
+  .sol-step{border-left:4px solid var(--grape-soft);padding:0 0 0 14px;margin:0;opacity:0;max-height:0;
+    overflow:hidden;transition:opacity .5s,max-height .6s,padding .4s;}
+  .sol-step.show{opacity:1;max-height:400px;padding:10px 0 10px 14px;margin-bottom:4px;}
+  .sol-step .sn{font-family:'Baloo 2';font-weight:700;color:var(--grape);font-size:.82rem;display:block;margin-bottom:3px;}
+  .sol-step p{margin:0;line-height:1.8;font-size:.97rem;}
+  .sol-step .why{background:var(--sun);color:#7a5a00;font-size:.82rem;padding:2px 8px;border-radius:8px;display:inline-block;margin-top:6px;font-weight:700;}
+  .diff-check{background:var(--rose-soft);border-radius:14px;padding:15px 16px;margin-top:14px;}
+  .diff-check h4{margin:0 0 10px;color:#b64d72;font-family:'Baloo 2';font-size:1rem;}
+  .done-tag{display:none;text-align:center;margin-top:16px;padding:13px;border-radius:14px;
+    background:var(--mint-soft);color:#2f7d63;font-weight:700;font-family:'Baloo 2';font-size:1rem;line-height:1.5;}
+  .done-tag.show{display:block;animation:pop .4s ease;}
+  .finale{display:none;text-align:center;background:#fff;border:2px solid var(--line);border-radius:24px;
+    padding:34px 24px;margin-top:26px;box-shadow:0 14px 40px var(--shadow);}
+  .finale.show{display:block;animation:pop .5s ease;}
+  .finale .big{font-family:'Baloo 2';font-size:2.4rem;margin:0 0 6px;}
+  .finale h2{font-family:'Baloo 2';font-size:1.35rem;margin:8px 0 14px;color:var(--grape);}
+  .finale p{color:#8a7fa0;line-height:1.9;font-size:.98rem;margin:0 auto 8px;max-width:450px;}
+  .cards-recap{display:flex;flex-direction:column;gap:10px;margin:20px 0 4px;text-align:left;}
+  .rc{border-radius:14px;padding:13px 16px;background:var(--sky-soft);}
+  .rc .l{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.9rem;}
+  .rc .see{color:#1d5a86;font-weight:800;}.rc .a{color:var(--grape);font-weight:800;}.rc .do{color:#2f7d63;font-weight:800;}
+  .finale .again{margin-top:16px;}
+  footer{text-align:center;margin-top:34px;font-size:.82rem;color:#b3a9c4;line-height:1.7;}
+  .hide{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">🌸 品頤專屬 · 數學會考特訓</span>
+    <h1>兩種練習，<span class="hl">一起變強</span></h1>
+    <p class="sub">用上面的按鈕切換。一邊練「怎麼想到下一步」，一邊練「錯題怎麼真的訂正」——兩個都要，才會穩。</p>
+  </header>
+
+  <div class="switch" id="switch">
+    <button class="active radar" data-mode="radar">
+      <span class="em">📡</span>訊號雷達
+      <span class="cap">練解題 · 換題也會</span>
+    </button>
+    <button class="correction" data-mode="correction">
+      <span class="em">📝</span>錯題訂正
+      <span class="cap">練訂正 · 蓋住重推</span>
+    </button>
+  </div>
+  <p class="mode-note" id="modeNote">📡 光看題目長相，猜下一步用哪招，再換題認同一個訊號。</p>
+
+  <div class="track">
+    <span class="dots" id="dots"></span>
+    <span class="lbl" id="trackLbl">第 1 / 5 題</span>
+  </div>
+
+  <div id="cards"></div>
+
+  <!-- RADAR finale -->
+  <section class="finale" id="finaleRadar">
+    <div class="big">📡✨</div>
+    <h2>五個訊號，全部收進雷達了！</h2>
+    <p>發現了嗎——你剛剛<b>換了題目還是認得出來</b>，那就叫「會」。這跟「看懂詳解」是完全不同的等級。</p>
+    <div class="cards-recap" id="recap"></div>
+    <p style="margin-top:18px">要不要換另一種練習？去 <b>📝 錯題訂正</b> 練「蓋住重推」，把訂正也練成真的 💜</p>
+    <button class="btn mint again" onclick="setMode('correction')">切到 📝 錯題訂正 →</button>
+  </section>
+
+  <!-- CORRECTION finale -->
+  <section class="finale" id="finaleCorrection">
+    <div class="big">📝✨</div>
+    <h2>五題訂正流程，走完了！</h2>
+    <p>真正讓你變強的不是「看詳解」，是最後那步<b>蓋住重推</b>——它騙不了人。推得出來才是會，推不出來代表剛剛只是看懂。</p>
+    <div class="cards-recap">
+      <div class="rc"><div class="l"><span class="see">1️⃣ 自己先算</span><span class="a">→</span><span class="do">寫下想法，空白也是資訊</span></div></div>
+      <div class="rc"><div class="l"><span class="see">2️⃣ 比對差異</span><span class="a">→</span><span class="do">只找「不一樣的那一步」</span></div></div>
+      <div class="rc"><div class="l"><span class="see">3️⃣ 蓋住重推</span><span class="a">→</span><span class="do">推得出來＝真的會</span></div></div>
+    </div>
+    <p style="margin-top:18px">回去 <b>📡 訊號雷達</b> 練解題觸發，兩邊輪流練最有效 💜</p>
+    <button class="btn again" onclick="setMode('radar')">切到 📡 訊號雷達 →</button>
+  </section>
+
+  <footer>
+    做給品頤的 · 📡練解題遷移 × 📝練錯題訂正<br>國中數學會考常見範圍（乘法公式・平方根與畢氏・因式分解）
+  </footer>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const radar = [
+  {ch:"訊號一 · 乘法公式",title:"求最小值 → 配方",diff:"鑑別度 A",
+   q:'求 <span class="math">x² − 6x + 11</span> 的最小值。',
+   guessQ:"看到「二次式」又要你「求最小／最大值」，這是在提示你做什麼？",
+   guessOpts:[{k:"A",t:"直接代 x = 1, 2, 3… 一個一個試",ok:false},{k:"B",t:"配方，湊成 (x − a)² + b 的樣子",ok:true},{k:"C",t:"用十字交乘因式分解",ok:false}],
+   guessRight:"對了！二次式求極值，幾乎都是配方。因為 (x−a)² 一定 ≥ 0，湊出來後最小值一眼就看到。",
+   guessWrong:"不是喔～代數字永遠試不完；因式分解是求「等於 0 的根」，不是求極值。<b>二次式＋求極值＝配方</b>。",
+   signal:{see:"二次式 + 求最大/最小值",doit:"配方成 (x−a)² + b",why:'平方永遠 ≥ 0，所以 (x−a)² 最小是 0，此時整式最小＝b。<b>看到「求極值」就把二次式往這形狀湊。</b>'},
+   demo:'x² − 6x + 11 = (x−3)² + 2 → 最小值 <b>2</b>（當 x=3）',
+   transferQ:'一支筆賣 (10 − x) 元時，每天賣出 x 支。求每天營業額 <span class="math">x(10 − x)</span> 的最大值。',
+   disguise:"（長得像應用題、還是「最大值」，但別被騙——展開就是二次式）",
+   transferOpts:[{k:"A",t:"這是應用題，跟剛剛的配方沒關係",ok:false},{k:"B",t:"展開成 −x²+10x，一樣配方求最大值",ok:true},{k:"C",t:"把 x=10 代進去就好",ok:false}],
+   transferRight:"漂亮！你認出訊號了 👏 x(10−x)=−x²+10x=−(x−5)²+25 → 最大值 <b>25</b>。題目換包裝，訊號一樣。",
+   transferWrong:"再想一下訊號卡：只要「二次式＋求極值」就是配方。x=10 只是其中一個值，不是最大值。"},
+  {ch:"訊號二 · 平方根與畢氏",title:"摺紙 → 長度守恆",diff:"鑑別度 A",
+   q:'長方形紙長 8、寬 6，把右下角摺起來使頂點落在左邊。底邊被摺點分成 x 與 (8−x)，求 x。',
+   guessQ:"看到「摺紙／翻折」，最關鍵要先意識到哪件事？",
+   guessOpts:[{k:"A",t:"摺過去的邊，長度不會變（守恆）",ok:true},{k:"B",t:"摺完面積少一半",ok:false},{k:"C",t:"一定要用相似三角形",ok:false}],
+   guessRight:"就是這個！摺紙 = 把一段翻過去，長度完全不變。這個「守恆」就是鑰匙，接著才能用畢氏定理接起來。",
+   guessWrong:"面積、相似不是重點。摺紙的靈魂是：<b>翻折前後長度不變</b>。抓到這個，斜邊等於多少就出來了。",
+   signal:{see:"摺紙 / 翻折 / 對稱",doit:"標出「翻過去長度不變」的那條邊，再配畢氏",why:'摺過去的斜邊 = 原本的 (8−x)。它跟高 6、底 x 組成直角三角形，用 x²+6²=(8−x)² 就解得出來。<b>看到摺紙先找那條「不變的邊」。</b>'},
+   demo:'x² + 6² = (8−x)² → 36 = 64 − 16x → <b>x = 7/4</b>',
+   transferQ:'把一個正方形沿一角摺起來，使該角落在對邊上。已知邊長 4。要解這題，第一步該做什麼？',
+   disguise:"（換成正方形、換個摺法，看起來不一樣——但它還是摺紙）",
+   transferOpts:[{k:"A",t:"先找出「摺過去長度不變」的那條邊，設相等",ok:true},{k:"B",t:"直接算對角線 = 4√2 就是答案",ok:false},{k:"C",t:"這種要背特殊公式才會",ok:false}],
+   transferRight:"對！不管正方形、長方形，只要是摺紙，第一步永遠是<b>找那條長度不變的邊</b>，再用畢氏。你抓到訊號本質了 🎉",
+   transferWrong:"別急著算對角線，也不用背公式。回到訊號卡：<b>摺紙 → 先標出翻折前後不變的邊</b>。"},
+  {ch:"訊號三 · 因式分解",title:"二次項係數≠1 → 十字交乘",diff:"鑑別度 A",
+   q:'分解 <span class="math">6x² − 5x − 4</span>。',
+   guessQ:"看到二次項係數是 6（不是 1）的三項式要分解，該用哪招？",
+   guessOpts:[{k:"A",t:"提出公因數就好",ok:false},{k:"B",t:"十字交乘：拆 6 和 −4，交叉湊出 −5x",ok:true},{k:"C",t:"用配方",ok:false}],
+   guessRight:"沒錯！係數不是 1，沒辦法直接湊，就用十字交乘：左邊拆二次項係數、右邊拆常數，交叉相乘相加要等於中間項。",
+   guessWrong:"沒有公因數可提；配方是求根不是分解。<b>係數≠1 的三項式分解＝十字交乘</b>。",
+   signal:{see:"ax² + bx + c，且 a ≠ 1，要分解",doit:"十字交乘：拆 a、拆 c，交叉相乘湊出 b",why:'把 6 拆成 2×3、−4 拆成 1×(−4)，交叉相乘相加試到等於中間的 −5x。<b>看到係數不是 1 的分解，直接畫十字。</b>'},
+   demo:'6x² − 5x − 4 = (2x + 1)(3x − 4)（交叉：2·(−4)+3·1 = −5 ✓）',
+   transferQ:'解方程式 <span class="math">2x² + 7x + 3 = 0</span>，求 x。',
+   disguise:"（這次是「解方程式」不是「分解」，但要解它，得先分解左邊）",
+   transferOpts:[{k:"A",t:"這是解方程式，跟十字交乘無關",ok:false},{k:"B",t:"先用十字交乘分解左邊，再讓每括號 = 0",ok:true},{k:"C",t:"直接猜 x = 1 代代看",ok:false}],
+   transferRight:"太強了！「解 ax²+bx+c=0」第一步常常就是<b>用十字交乘把它分解</b>。2x²+7x+3=(2x+1)(x+3)=0 → x=−1/2 或 −3 🎉",
+   transferWrong:"別被「解方程式」的包裝騙了。要解它得先分解左邊——係數是 2（≠1），還是十字交乘。"},
+  {ch:"訊號四 · 直角坐標",title:"求兩點距離 → 畢氏定理",diff:"鑑別度 A",
+   q:'坐標平面上 A(1, 2)、B(4, 6)。求 <span class="math">A、B 兩點的距離</span>。',
+   guessQ:"看到「坐標平面上求兩點距離」，該用什麼？",
+   guessOpts:[{k:"A",t:"兩點座標相加除以 2",ok:false},{k:"B",t:"x 差、y 差當兩股，用畢氏求斜邊",ok:true},{k:"C",t:"直接把 x、y 相減就是距離",ok:false}],
+   guessRight:"對！兩點距離其實是一個直角三角形的斜邊——x 的差是一股、y 的差是另一股，用畢氏定理接起來。",
+   guessWrong:"相加除以 2 是求「中點」不是距離；直接相減只會得到單一方向的差。<b>兩點距離＝畢氏（x差²＋y差² 開根號）</b>。",
+   signal:{see:"坐標平面 + 求兩點距離",doit:"x差、y差當兩股，距離 = √(x差² + y差²)",why:'兩點連線是斜邊，水平差和垂直差是兩股，本質就是畢氏定理。<b>看到求距離，先算 x 差和 y 差。</b>'},
+   demo:'x差=4−1=3，y差=6−2=4 → 距離 = √(3²+4²) = √25 = <b>5</b>',
+   transferQ:'A(−2, 1)、B(3, 1) 兩點，中間放一點 C(3, 5)。求 <span class="math">B 到 C 的距離</span>。',
+   disguise:"（多給了一個點來混淆，但要求的還是兩點距離）",
+   transferOpts:[{k:"A",t:"照樣算 B、C 的 x差與 y差，套畢氏",ok:true},{k:"B",t:"要三個點一起算才行",ok:false},{k:"C",t:"C 的 y 比較大，直接相減 5−1=4 就好",ok:false}],
+   transferRight:"對！只看要求的那兩點 B、C：x差=0、y差=4 → 距離 = √(0+16) = <b>4</b>。多的點是干擾，訊號沒變 🎉",
+   transferWrong:"別被第三個點干擾。訊號卡：<b>求兩點距離＝那兩點的 x差、y差套畢氏</b>。這題剛好 x 一樣（差 0），所以答案是 4，但方法一模一樣。"},
+  {ch:"訊號五 · 聯立方程式",title:"兩量互相牽制 → 設 x,y 列兩式",diff:"鑑別度 A",
+   q:'買 3 支筆和 2 本筆記本共 130 元；買 2 支筆和 4 本筆記本共 180 元。求一支筆多少錢。',
+   guessQ:"看到「兩種東西、兩組總價，要求其中一個單價」，第一步該做什麼？",
+   guessOpts:[{k:"A",t:"設筆 = x、筆記本 = y，列出兩條方程式",ok:true},{k:"B",t:"用 130 ÷ 5 猜平均價",ok:false},{k:"C",t:"這題資訊不夠，算不出來",ok:false}],
+   guessRight:"對！兩個未知數（筆、筆記本）互相牽制，就<b>各設一個變數，把每一句話翻成一條方程式</b>，湊成兩式後消去。",
+   guessWrong:"平均價不對，因為筆和筆記本價格不同；資訊其實剛好夠——兩個未知數配兩條式子就能解。<b>兩個量互相牽制＝設 x,y 列兩式</b>。",
+   signal:{see:"兩種未知量 + 兩組條件",doit:"各設一變數，每句話翻成一式，湊兩式消去",why:'2 個未知數需要 2 條方程式才解得出來。把題目每一句「話」翻成一條「式」，再用加減消去。<b>看到兩個互相牽制的量，先設 x、y。</b>'},
+   demo:'設筆 x、本 y：3x+2y=130、2x+4y=180 → 消去解得 <b>筆 x = 20 元</b>',
+   transferQ:'一場球賽賣出成人票和兒童票共 100 張，收入 12800 元。成人票 200 元、兒童票 80 元。問成人票賣了幾張？',
+   disguise:"（換成球賽票，但一樣是兩種東西、兩組條件）",
+   transferOpts:[{k:"A",t:"設成人 x 張、兒童 y 張，列張數式和金額式兩條",ok:true},{k:"B",t:"12800 ÷ 100 = 128，算平均票價就好",ok:false},{k:"C",t:"這跟聯立方程式無關",ok:false}],
+   transferRight:"太強了！設成人 x、兒童 y：x+y=100、200x+80y=12800 → 消去得 <b>成人 x = 40 張、兒童 60 張</b>。換了情境，訊號一樣 🎉",
+   transferWrong:"平均票價解不出各賣幾張。回到訊號卡：<b>兩種量（成人票、兒童票）＋兩組條件（張數、金額）＝設 x,y 列兩式</b>。"}
+];
+
+const correction = [
+  {ch:"第一章 · 乘法公式",title:"配方求最小值",diff:"鑑別度 A",
+   q:'求 <span class="math">x² − 6x + 11</span> 的最小值。',
+   hint:"提示：直接代數字很難湊到最小。想想哪個式子永遠 ≥ 0？（配方看看）",
+   sol:[{n:"第 1 步 · 配方",p:'x² − 6x + 11 = (x²−6x+9) − 9 + 11 = <span class="math">(x−3)² + 2</span>',why:"+9 是自己補的，所以要 −9 補回來"},
+        {n:"第 2 步 · 用平方性質",p:'任何實數平方 ≥ 0，所以 (x−3)² ≥ 0。'},
+        {n:"第 3 步 · 求最小值",p:'當 x=3 時 (x−3)²=0，最小值 = 0 + 2 = <b>2</b>。'}],
+   diffQ:"最多人卡在第 1 步——想不到要配方，或補了 +9 卻忘記 −9。你剛剛卡在哪？",
+   redoQ:"蓋住上面詳解，換一題自己推：求 x² − 4x + 7 的最小值。把配方過程寫出來。",
+   redoAns:"3"},
+  {ch:"第二章 · 平方根與畢氏",title:"摺紙求邊長",diff:"鑑別度 A",
+   q:'長方形紙長 8、寬 6，右下角摺起來使頂點落在左邊。底邊分成 x 與 (8−x)，求 x。',
+   hint:"提示：摺紙＝翻過去長度不變。摺過去那段斜邊就是原本的一段長，用畢氏接起來。",
+   sol:[{n:"第 1 步 · 看懂摺紙",p:'摺起來後，(8−x) 那段變成斜邊，長度不變 = 8−x。它連到高 6 和底 x 組成直角三角形。',why:"摺紙前後「長度守恆」，斜邊 = 8−x"},
+        {n:"第 2 步 · 列畢氏定理",p:'兩股是 x 和 6，斜邊 (8−x)：<span class="math">x² + 6² = (8−x)²</span>'},
+        {n:"第 3 步 · 解方程式",p:'x²+36 = 64−16x+x² → 36 = 64−16x → 16x=28 → <b>x = 7/4</b>'}],
+   diffQ:"分水嶺在第 1 步：有沒有看出「摺過去的斜邊 = 8−x」。你剛剛看出來了嗎？",
+   redoQ:"蓋住詳解，用一兩句話寫出你的理解：為什麼那條斜邊會等於 (8−x)？不要抄。",
+   redoAns:""},
+  {ch:"第三章 · 因式分解",title:"十字交乘",diff:"鑑別度 A",
+   q:'分解 <span class="math">6x² − 5x − 4</span>。',
+   hint:"提示：二次項係數不是 1，不能直接湊。用十字交乘——拆 6、拆 −4，交叉相乘湊出中間的 −5x。",
+   sol:[{n:"第 1 步 · 拆係數",p:'6 拆成 2×3；−4 拆成 1×(−4)、(−1)×4、2×(−2)… 要試哪一組。'},
+        {n:"第 2 步 · 交叉湊中間項",p:'試 (2x)(3x) 配 (+1)(−4)：交叉 = 2x·(−4)+3x·(+1) = −5x ✓',why:"交叉相乘相加要剛好 = −5x，試錯很正常"},
+        {n:"第 3 步 · 寫答案",p:'<span class="math">6x² − 5x − 4 = (2x + 1)(3x − 4)</span>，乘回去可驗算。'}],
+   diffQ:"十字交乘最容易「湊錯符號」或「試一組不對就放棄」。你剛剛是符號錯，還是不知道怎麼開始？",
+   redoQ:"蓋住詳解，自己分解：3x² + x − 2。寫出答案。",
+   redoAns:"(3x-2)(x+1)"},
+  {ch:"第四章 · 直角坐標",title:"求兩點距離",diff:"鑑別度 A",
+   q:'坐標平面上 A(1, 2)、B(4, 6)。求 A、B 兩點的距離。',
+   hint:"提示：把兩點連起來看成斜邊。x 的差、y 的差是兩股，用畢氏定理。",
+   sol:[{n:"第 1 步 · 算 x差、y差",p:'x 差 = 4 − 1 = 3；y 差 = 6 − 2 = 4。',why:"這兩個差，就是直角三角形的兩股"},
+        {n:"第 2 步 · 套畢氏定理",p:'距離² = 3² + 4² = 9 + 16 = 25。'},
+        {n:"第 3 步 · 開根號",p:'距離 = √25 = <b>5</b>。'}],
+   diffQ:"這題最常卡在「不知道求距離要用畢氏」，或 x差 y差 算錯正負。你剛剛卡在哪？",
+   redoQ:"蓋住詳解，自己算：P(−1, 1)、Q(2, 5) 兩點的距離。把過程寫出來。",
+   redoAns:"5"},
+  {ch:"第五章 · 聯立方程式",title:"應用題設 x,y 列兩式",diff:"鑑別度 A",
+   q:'買 3 支筆和 2 本筆記本共 130 元；買 2 支筆和 4 本筆記本共 180 元。求一支筆多少錢。',
+   hint:"提示：兩個未知量（筆、本）要各設一個變數，把每一句話翻成一條方程式，再消去。",
+   sol:[{n:"第 1 步 · 設變數、列兩式",p:'設筆 = x、筆記本 = y。<br><span class="math">3x + 2y = 130</span> … ①<br><span class="math">2x + 4y = 180</span> … ②',why:"每一句「話」翻成一條「式」，2 個未知數配 2 條式"},
+        {n:"第 2 步 · 消去一個變數",p:'①×2：6x + 4y = 260。<br>減去 ②（2x + 4y = 180）：4x = 80。'},
+        {n:"第 3 步 · 求解",p:'x = 80 ÷ 4 = <b>20</b>。一支筆 20 元。'}],
+   diffQ:"聯立最常卡在「不知道要設兩個變數」，或消去時加減方向弄反。你剛剛卡在哪？",
+   redoQ:"蓋住詳解，自己解：買 4 顆蘋果和 3 顆橘子共 90 元，2 顆蘋果和 3 顆橘子共 60 元。求一顆蘋果多少錢。",
+   redoAns:"15"}
+];
+
+/* ============ STATE ============ */
+let mode = 'radar';
+const cardsEl = document.getElementById('cards');
+const notes = {radar:'📡 光看題目長相，猜下一步用哪招，再換題認同一個訊號。',
+               correction:'📝 自己先算 → 比對詳解找差異 → 蓋住重推，練真正的訂正。'};
+
+function setMode(m){
+  mode = m;
+  document.body.className = 'mode-'+m;
+  document.querySelectorAll('#switch button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.mode===m);
+  });
+  document.getElementById('modeNote').textContent = notes[m];
+  document.getElementById('finaleRadar').classList.remove('show');
+  document.getElementById('finaleCorrection').classList.remove('show');
+  document.querySelector('.track').classList.remove('hide');
+  build();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('#switch button').forEach(b=>{
+  b.addEventListener('click',()=>setMode(b.dataset.mode));
+});
+
+function resetTrack(){
+  const total=(mode==='radar'?radar:correction).length;
+  const dotsWrap=document.getElementById('dots');
+  dotsWrap.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('span');
+    d.className='dot'+(i===0?' on':'');
+    dotsWrap.appendChild(d);
+  }
+  document.getElementById('trackLbl').textContent = (mode==='radar'?'第 1 / '+total+' 個訊號':'第 1 / '+total+' 題');
+}
+
+function build(){
+  cardsEl.innerHTML='';
+  resetTrack();
+  const data = mode==='radar'?radar:correction;
+  data.forEach((p,i)=> mode==='radar'?makeRadar(p,i):makeCorrection(p,i));
+}
+
+/* ============ RADAR CARD ============ */
+function makeRadar(p,i){
+  const c=document.createElement('section');
+  c.className='card'+(i!==0?' hide':'');
+  c.innerHTML=`
+    <div class="card-top"><div class="num">${i+1}</div>
+      <div class="meta"><div class="t">${p.title}</div><div class="s">${p.ch}</div></div>
+      <div class="diff">${p.diff}</div></div>
+    <div class="card-body">
+      <div class="qbox"><span class="qlabel">題目</span>${p.q}</div>
+      <div class="stage">
+        <div class="stage-h"><span class="ic">🎯</span>先猜：這題在對你發什麼訊號？</div>
+        <p class="hint">先不要算！光看題目「長相」，猜下一步用哪招。猜錯沒關係，猜這動作本身就是在練雷達。</p>
+        <div class="opts guess-opts"></div><div class="feedback guess-fb"></div>
+      </div>
+      <div class="stage">
+        <div class="stage-h"><span class="ic">📡</span>你的訊號卡</div>
+        <div class="sig-locked locked">先猜猜看，<b>訊號卡就會發下來</b> 📡</div>
+        <div class="sig-open hide">
+          <div class="sigcard"><div class="sig-inner">
+            <span class="sig-tag">SIGNAL CARD · 收進雷達</span>
+            <div class="sig-line">
+              <div class="sig-cell see">👀 看到<br>${p.signal.see}</div>
+              <div class="sig-arrow">→</div>
+              <div class="sig-cell do">✋ 就做<br>${p.signal.doit}</div></div>
+            <div class="sig-why">💡 ${p.signal.why}</div>
+            <div class="sig-why" style="background:#faf6ff;margin-top:8px"><b>套回原題：</b>${p.demo}</div>
+          </div></div>
+          <button class="btn sky btn-full to-transfer">收好了，換一題試試我認不認得 🔀</button>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-h"><span class="ic">🔀</span>換題認訊號（真正的驗收）</div>
+        <div class="tr-locked locked">先領訊號卡，<b>再挑戰換包裝的題目</b> 🔒</div>
+        <div class="tr-open hide transfer">
+          <div class="qbox"><span class="qlabel">換一題</span>${p.transferQ}</div>
+          <p class="disguise">${p.disguise}</p>
+          <p class="hint" style="margin-top:12px">這題長得跟剛剛不一樣，但發的是<b>同一個訊號</b>——你認得出來嗎？</p>
+          <div class="opts transfer-opts"></div><div class="feedback transfer-fb"></div>
+          <div class="done-tag"></div>
+          <button class="btn btn-full next-prob hide">${i<radar.length-1?'下一個訊號 →':'看看我的雷達裝了什麼 📡'}</button>
+        </div>
+      </div>
+    </div>`;
+  cardsEl.appendChild(c);
+  wireRadar(c,p,i);
+}
+
+function renderOpts(container,opts,onPick){
+  opts.forEach(o=>{
+    const el=document.createElement('div');
+    el.className='opt';
+    el.innerHTML=`<span class="k">${o.k}</span><span>${o.t}</span>`;
+    el.addEventListener('click',()=>onPick(o,el,container));
+    container.appendChild(el);
+  });
+}
+
+function wireRadar(c,p,i){
+  const gWrap=c.querySelector('.guess-opts'),gFb=c.querySelector('.guess-fb');
+  const sigLocked=c.querySelector('.sig-locked'),sigOpen=c.querySelector('.sig-open');
+  let gDone=false;
+  renderOpts(gWrap,p.guessOpts,(o,el,cont)=>{
+    if(gDone)return;gDone=true;
+    [...cont.children].forEach(x=>x.classList.add('dim'));el.classList.remove('dim');
+    if(o.ok){el.classList.add('correct');gFb.className='feedback show good';gFb.innerHTML='✅ '+p.guessRight;}
+    else{el.classList.add('wrong');
+      [...cont.children].forEach((x,idx)=>{if(p.guessOpts[idx].ok){x.classList.remove('dim');x.classList.add('correct');}});
+      gFb.className='feedback show warn';gFb.innerHTML='差一點～'+p.guessWrong;}
+    setTimeout(()=>{sigLocked.classList.add('hide');sigOpen.classList.remove('hide');
+      sigOpen.scrollIntoView({behavior:'smooth',block:'center'});},450);
+  });
+  const trLocked=c.querySelector('.tr-locked'),trOpen=c.querySelector('.tr-open');
+  c.querySelector('.to-transfer').addEventListener('click',()=>{
+    trLocked.classList.add('hide');trOpen.classList.remove('hide');
+    trOpen.scrollIntoView({behavior:'smooth',block:'center'});});
+  const tWrap=c.querySelector('.transfer-opts'),tFb=c.querySelector('.transfer-fb');
+  const doneTag=c.querySelector('.done-tag'),nextProb=c.querySelector('.next-prob');
+  let tDone=false;
+  renderOpts(tWrap,p.transferOpts,(o,el,cont)=>{
+    if(tDone)return;
+    [...cont.children].forEach(x=>x.classList.add('dim'));el.classList.remove('dim');
+    if(o.ok){tDone=true;el.classList.add('correct');
+      tFb.className='feedback show good';tFb.innerHTML='🎉 '+p.transferRight;
+      doneTag.classList.add('show');doneTag.innerHTML='✅ 訊號認出來了！這就是「換題也會」';
+      nextProb.classList.remove('hide');
+      markDone(i);
+    }else{el.classList.add('wrong');
+      tFb.className='feedback show warn';tFb.innerHTML='🔍 '+p.transferWrong+'<br><br><b>再選一次看看！</b>';
+      setTimeout(()=>{[...cont.children].forEach(x=>x.classList.remove('dim'));el.classList.remove('wrong');},1500);}
+  });
+  nextProb.addEventListener('click',()=>goNext(c,i,radar.length,'finaleRadar','第 %n / '+radar.length+' 個訊號',buildRecap));
+}
+
+/* ============ CORRECTION CARD ============ */
+function makeCorrection(p,i){
+  const c=document.createElement('section');
+  c.className='card'+(i!==0?' hide':'');
+  c.innerHTML=`
+    <div class="card-top"><div class="num">${i+1}</div>
+      <div class="meta"><div class="t">${p.title}</div><div class="s">${p.ch}</div></div>
+      <div class="diff">${p.diff}</div></div>
+    <div class="card-body">
+      <div class="qbox"><span class="qlabel">題目</span>${p.q}</div>
+      <div class="stage">
+        <div class="stage-h"><span class="ic">✏️</span>第一步：自己先算</div>
+        <p class="hint">不用怕寫錯。把第一個想法打進去，真的沒想法就寫「我卡在哪」。這步是給自己看的。</p>
+        <textarea class="s1-input" placeholder="例如：我想先代 x=1 試試… 或：我覺得要配方但不確定怎麼補…"></textarea>
+        <button class="btn s1-btn" style="margin-top:12px">我寫好了，看提示 →</button>
+        <p class="hint s1-hint hide" style="margin-top:12px;background:#faf7ff;padding:11px 13px;border-radius:11px;">💡 ${p.hint}</p>
+        <button class="btn ghost s1-next hide" style="margin-top:10px">想過了，進入比對 →</button>
+      </div>
+      <div class="stage">
+        <div class="stage-h"><span class="ic">🔍</span>第二步：比對差異</div>
+        <div class="s2-locked locked">先完成上一步，<b>詳解才會一步一步打開</b> 🔒</div>
+        <div class="s2-open hide">
+          <p class="hint">詳解一步一步出現。每看一步先問自己：「這步我剛剛有想到嗎？」誠實回答就好。</p>
+          <div class="sol-wrap"></div>
+          <button class="btn rose reveal-btn" style="margin-top:6px">打開下一步 →</button>
+          <div class="diff-check hide">
+            <h4>🎯 找出你的「那一步」</h4>
+            <p style="margin:0 0 10px;font-size:.92rem;color:#a8557a;line-height:1.7;font-weight:700">${p.diffQ}</p>
+            <div class="opts">
+              <label class="opt honesty-opt"><span class="em">😌</span><span>我第 1 步就卡住了，完全沒方向</span></label>
+              <label class="opt honesty-opt"><span class="em">🤔</span><span>方向對，但中間某步算錯／漏掉</span></label>
+              <label class="opt honesty-opt"><span class="em">😮</span><span>我以為我會，看到詳解才發現想的不一樣</span></label>
+              <label class="opt honesty-opt"><span class="em">😎</span><span>我全部都有想到，跟詳解一樣</span></label>
+            </div>
+            <div class="feedback s2-fb"></div>
+            <button class="btn s2-next hide" style="margin-top:14px">我知道差在哪了，去蓋住重推 →</button>
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="stage-h"><span class="ic">🧠</span>第三步：蓋住重推（騙不了人的一步）</div>
+        <div class="s3-locked locked">先完成比對，<b>再驗收是不是真的會了</b> 🔒</div>
+        <div class="s3-open hide redo">
+          <p class="hint">現在把上面詳解<b>當作不存在</b>。自己推推看——推得出來，才是真的會了。</p>
+          <div class="qbox"><span class="qlabel">換你上場</span>${p.redoQ}</div>
+          <textarea class="s3-input" style="margin-top:12px" placeholder="把你的過程寫在這裡…"></textarea>
+          <div class="btn-row">
+            <button class="btn mint s3-check">完成，檢查看看</button>
+            <button class="btn ghost s3-peek">我卡住了，回去看詳解</button>
+          </div>
+          <div class="feedback s3-fb"></div>
+          <div class="done-tag">✅ 這題走完囉！你剛剛做的，就是「真的會了」的完整流程</div>
+          <button class="btn btn-full next-prob hide">${i<correction.length-1?'下一題 →':'看看我學到什麼 🎉'}</button>
+        </div>
+      </div>
+    </div>`;
+  cardsEl.appendChild(c);
+  wireCorrection(c,p,i);
+}
+
+function wireCorrection(c,p,i){
+  const s1btn=c.querySelector('.s1-btn'),s1hint=c.querySelector('.s1-hint'),
+        s1next=c.querySelector('.s1-next'),s1input=c.querySelector('.s1-input');
+  s1btn.addEventListener('click',()=>{
+    if(s1input.value.trim().length<2){s1input.focus();s1input.style.borderColor='var(--rose)';
+      s1input.placeholder='先寫一點點也好～哪怕「我卡在第一步」都可以';return;}
+    s1hint.classList.remove('hide');s1next.classList.remove('hide');s1btn.classList.add('hide');
+  });
+  s1next.addEventListener('click',()=>{
+    c.querySelector('.s2-locked').classList.add('hide');
+    const o=c.querySelector('.s2-open');o.classList.remove('hide');
+    o.scrollIntoView({behavior:'smooth',block:'center'});});
+
+  const solWrap=c.querySelector('.sol-wrap');
+  p.sol.forEach(st=>{
+    const d=document.createElement('div');d.className='sol-step';
+    d.innerHTML=`<span class="sn">${st.n}</span><p>${st.p}</p>${st.why?`<span class="why">↳ ${st.why}</span>`:''}`;
+    solWrap.appendChild(d);});
+  const steps=solWrap.querySelectorAll('.sol-step');
+  const revealBtn=c.querySelector('.reveal-btn'),diffCheck=c.querySelector('.diff-check');
+  let shown=0;
+  revealBtn.addEventListener('click',()=>{
+    if(shown<steps.length){steps[shown].classList.add('show');
+      steps[shown].scrollIntoView({behavior:'smooth',block:'center'});shown++;}
+    if(shown===steps.length){revealBtn.classList.add('hide');diffCheck.classList.remove('hide');}
+    else revealBtn.textContent=`打開下一步 →（還有 ${steps.length-shown} 步）`;
+  });
+
+  const hOpts=c.querySelectorAll('.honesty-opt'),s2fb=c.querySelector('.s2-fb'),s2next=c.querySelector('.s2-next');
+  const msgs=[
+    {cls:'warn',t:'很誠實！第 1 步卡住＝這章是你的<b>弱點章節</b>，正是要記進錯題本的重點。跟著詳解第 1 步蓋起來再推一次就會了。'},
+    {cls:'warn',t:'這就是「比較差異」的意義——方向對，只差<b>那一步</b>。把那步圈起來，下次特別小心就好。'},
+    {cls:'good',t:'這發現超重要！「以為會」和「真的會」的差距就是這樣抓出來的。你沒有假裝會，很了不起 💜'},
+    {cls:'good',t:'那更要證明給自己看——真的全想到了，第三步蓋住重推你一定推得出來。走，去驗收！'}
+  ];
+  hOpts.forEach((o,idx)=>o.addEventListener('click',()=>{
+    hOpts.forEach(x=>x.classList.remove('sel'));o.classList.add('sel');
+    s2fb.className='feedback show '+msgs[idx].cls;s2fb.innerHTML=msgs[idx].t;
+    s2next.classList.remove('hide');
+  }));
+  s2next.addEventListener('click',()=>{
+    c.querySelector('.s3-locked').classList.add('hide');
+    const o=c.querySelector('.s3-open');o.classList.remove('hide');
+    o.scrollIntoView({behavior:'smooth',block:'center'});});
+
+  const s3input=c.querySelector('.s3-input'),s3check=c.querySelector('.s3-check'),
+        s3peek=c.querySelector('.s3-peek'),s3fb=c.querySelector('.s3-fb'),
+        doneTag=c.querySelector('.done-tag'),nextProb=c.querySelector('.next-prob');
+  s3peek.addEventListener('click',()=>{
+    c.querySelector('.s2-open').scrollIntoView({behavior:'smooth',block:'center'});
+    s3fb.className='feedback show warn';
+    s3fb.innerHTML='沒關係～回去把詳解再看懂一次，然後<b>一定要回來蓋住自己推一次</b>。看懂 ≠ 會，重推才算數。';});
+  s3check.addEventListener('click',()=>{
+    const v=s3input.value.trim();
+    if(v.length<2){s3input.focus();s3input.style.borderColor='var(--rose)';return;}
+    let ok=true;
+    if(p.redoAns){const norm=v.replace(/\s/g,'').replace(/×/g,'*').replace(/－/g,'-');ok=norm.includes(p.redoAns.replace(/\s/g,''));}
+    if(p.redoAns&&ok){s3fb.className='feedback show good';
+      s3fb.innerHTML='🎉 答案對了！而且是你<b>自己蓋住推出來的</b>——這才是真的會了，不是看懂而已。';}
+    else if(p.redoAns&&!ok){s3fb.className='feedback show warn';
+      s3fb.innerHTML='答案還沒對上，但你有自己動手，比抄詳解強一百倍！回去對照第 1 步找出差在哪，<b>推到對為止，這題才真的收進口袋。</b>';}
+    else{s3fb.className='feedback show good';
+      s3fb.innerHTML='能用自己的話講出來，代表你是<b>真的懂</b>，不是背答案。這正是「比較差異」的價值 💜';}
+    doneTag.classList.add('show');nextProb.classList.remove('hide');markDone(i);
+  });
+  nextProb.addEventListener('click',()=>goNext(c,i,correction.length,'finaleCorrection','第 %n / '+correction.length+' 題',null));
+}
+
+/* ============ SHARED NAV ============ */
+function markDone(i){
+  const dots=document.querySelectorAll('.dot');
+  dots[i].classList.remove('on');dots[i].classList.add('done');
+}
+function goNext(c,i,total,finaleId,lblTpl,recapFn){
+  if(i<total-1){
+    c.classList.add('hide');
+    cardsEl.children[i+1].classList.remove('hide');
+    const dots=document.querySelectorAll('.dot');dots[i+1].classList.add('on');
+    document.getElementById('trackLbl').textContent=lblTpl.replace('%n',i+2);
+    document.querySelector('.track').scrollIntoView({behavior:'smooth',block:'center'});
+  }else{
+    if(recapFn)recapFn();
+    document.querySelector('.track').classList.add('hide');
+    const fin=document.getElementById(finaleId);fin.classList.add('show');
+    fin.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+function buildRecap(){
+  const r=document.getElementById('recap');r.innerHTML='';
+  radar.forEach(p=>{
+    const d=document.createElement('div');d.className='rc';
+    d.innerHTML=`<div class="l"><span class="see">👀 ${p.signal.see}</span> <span class="a">→</span> <span class="do">✋ ${p.signal.doit}</span></div>`;
+    r.appendChild(d);});
+}
+
+/* init */
+document.body.className='mode-radar';
+build();
+</script>
+</body>
+</html>
